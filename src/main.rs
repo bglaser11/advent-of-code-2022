@@ -22,6 +22,7 @@ fn main() {
         2 => solutions::aoc2::main(),
         3 => solutions::aoc3::main(),
         4 => solutions::aoc4::main(),
+        5 => solutions::aoc5::main(),
         _ => println!("{} isn't implemented!", arg),
     }
 }

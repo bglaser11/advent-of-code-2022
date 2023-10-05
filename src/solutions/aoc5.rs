@@ -1,52 +1,50 @@
 use crate::aoc_util::*;
-use std::collections::VecDeque;
+use itertools::Itertools;
 
-
+pub fn main() {
+    println!("Part 1: {}", part1("./input/5.txt"));
+}
 
 fn part1(path: &str) -> String {
-    let lines = read_lines(path);
-    let stacks: Vec<*mut VecDeque<char>> = vec![];
-    for _ in 0..9 {
-        let mut d: VecDeque<char> = VecDeque::new();
-        stacks.push(d);
-    }
+    let mut lines = read_lines(path);
+    let collected: String = lines.join("\n");
+    let (boxes, instructions) = collected.split_once("\n\n").unwrap();
+    let mut stacks: Vec<Vec<char>> = vec![vec![]; 9];
 
-    let mut sections = lines.collect::<Vec<String>>().split(|line| line.trim().is_empty());
-    // Starting setup section, I'm sorry
-    for (i, chunk) in sections.next().unwrap().chunks(4).map(|chunk| chunk.join("").as_bytes()).enumerate() {
-        if chunk[1].is_ascii_alphabetic() {
-            stacks[i].push_back(chunk[1] as char);
+    for line in boxes.lines().rev().skip(1) {
+        for (i, chunk) in line.as_bytes().chunks(4).enumerate() {
+            let letter = chunk[1];
+            if letter.is_ascii_alphabetic() {
+                stacks[i].push(letter as char);
+            }
         }
     }
 
-    // Now for the actual instructions
-    for instr in sections.next().unwrap() {
-        let vals = parse(instr);
-        move_n_crates(vals[0], stacks[vals[1] as usize], stacks[vals[2] as usize]);
+    for instruction in instructions.lines() {
+        let vals = parse(instruction);
+        let (amount, from, to) = (vals[0], vals[1], vals[2]);
+
+        println!("{}", instruction);
+        for _ in 0..amount {
+            let letter = stacks[from-1].pop();
+            match letter {
+                Some(x) => stacks[to-1].push(x),
+                None => {
+                    println!("{:?}", stacks);
+                    panic!();
+                },
+                
+            }
+            //stacks[to-1].push(letter);
+        }
     }
 
-    // Now return the tops of every stack, packed into one string
-    let mut output = String::new();
-    for stack in stacks {
-        output.push(stack.pop_front().unwrap());
-    }
-    output
+    stacks.iter().map(|stack| stack.last().unwrap()).collect::<String>()
 }
 
-fn parse(line: &str) -> Vec<i32> {
-    line.chars().
-    filter(|c| c.is_numeric()).
-    map(|dig| dig.to_digit(10).
-    unwrap() as i32).
+fn parse(line: &str) -> Vec<usize> {
+    line.split(" ").
+    filter_map(|s| s.parse::<usize>().ok()).
     collect()
 }
-
-fn move_n_crates(n: i32, src: *mut VecDeque<char>, dest: *mut VecDeque<char>) {
-    for _ in 0..n {
-        let item = src.pop_front().unwrap();
-        dest.push_front(item);
-    }
-}
-
-
 
