@@ -24,18 +24,9 @@ fn part1(path: &str) -> String {
         let vals = parse(instruction);
         let (amount, from, to) = (vals[0], vals[1], vals[2]);
 
-        println!("{}", instruction);
         for _ in 0..amount {
-            let letter = stacks[from-1].pop();
-            match letter {
-                Some(x) => stacks[to-1].push(x),
-                None => {
-                    println!("{:?}", stacks);
-                    panic!();
-                },
-                
-            }
-            //stacks[to-1].push(letter);
+            let letter = stacks[from-1].pop().unwrap();
+            stacks[to-1].push(letter);
         }
     }
 
